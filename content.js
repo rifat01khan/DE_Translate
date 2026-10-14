@@ -1424,6 +1424,10 @@ function syncPlaybackTick() {
       }
     }
 
+    // BUGFIX: nextIndex was never computed here — ReferenceError on every tick
+    // silently killed the sync loop, so subtitles never appeared.
+    const nextIndex = findSubtitleIndex(now);
+
     if (nextIndex === activeSubtitleIndex) {
       if (activeSubtitleIndex >= 0 && karaokeHighlightEnabled) {
         updateKaraokeWordHighlight(Number(video.currentTime || 0));
@@ -1616,31 +1620,65 @@ async function executeEventsPipeline(videoId, source) {
   }
 
   // Identify all uncached / untranslated cues
+  // BUGFIX: Only enqueue cues near/after the current playback position.
+  // Previously every cue of a 3h+ video was sent in one TRANSLATE_BATCH job,
+  // which saturated the 15 RPM free tier and delayed the cues actually being
+  // watched by many minutes — subtitles appeared to "never show up".
+  const video = getCachedVideo();
+  const now = Number(video?.currentTime || 0);
+  const currentCueIndex = activeSubtitleIndex >= 0 ? activeSubtitleIndex : findSubtitleIndex(now);
+  const LOOKBEHIND_CUES = 5;
+  const HORIZON_CUES = 120;
+
   const uncachedCues = [];
+  let totalUncached = 0;
   for (let i = 0; i < stitchedSegments.length; i++) {
-    if (!translations[i]) {
-      uncachedCues.push({
-        index: i,
-        text: stitchedSegments[i].text,
-        startMs: stitchedSegments[i].startMs,
-        endMs: stitchedSegments[i].endMs
-      });
-    }
+    if (translations[i]) continue;
+    totalUncached++;
+    const pivot = currentCueIndex >= 0 ? currentCueIndex : 0;
+    if (i < pivot - LOOKBEHIND_CUES) continue;          // already watched
+    if (pivot >= 0 && i > pivot + HORIZON_CUES) continue; // far future — fetch later
+    uncachedCues.push({
+      index: i,
+      text: stitchedSegments[i].text,
+      startMs: stitchedSegments[i].startMs,
+      endMs: stitchedSegments[i].endMs
+    });
+  }
+
+  if (totalUncached === 0) {
+    processedVideoId = videoId;
+    return;
   }
 
   if (uncachedCues.length === 0) {
-    processedVideoId = videoId;
-    return;
+    // Everything untranslated is in the past (e.g. user seeked backwards);
+    // re-run from the new position instead of doing nothing.
+    if (activeRequestId && pendingVideoId === videoId && (Date.now() - lastProgressAt < 25000)) {
+      return;
+    }
+    const fallbackPivot = currentCueIndex >= 0 ? currentCueIndex : 0;
+    for (let i = 0; i < stitchedSegments.length && uncachedCues.length < HORIZON_CUES; i++) {
+      const j = (fallbackPivot + i) % stitchedSegments.length;
+      if (!translations[j]) {
+        uncachedCues.push({
+          index: j,
+          text: stitchedSegments[j].text,
+          startMs: stitchedSegments[j].startMs,
+          endMs: stitchedSegments[j].endMs
+        });
+      }
+    }
+    if (uncachedCues.length === 0) {
+      processedVideoId = videoId;
+      return;
+    }
   }
 
   // If a translation job for this video is actively progressing, avoid abortive churn
   if (activeRequestId && pendingVideoId === videoId && (Date.now() - lastProgressAt < 25000)) {
     return;
   }
-
-  const video = getCachedVideo();
-  const now = Number(video?.currentTime || 0);
-  const currentCueIndex = activeSubtitleIndex >= 0 ? activeSubtitleIndex : findSubtitleIndex(now);
 
   const requestId = `${videoId}:${Date.now()}:${Math.random().toString(36).slice(2)}`;
   activeRequestId = requestId;
@@ -1687,13 +1725,25 @@ async function executeEventsPipeline(videoId, source) {
         armWatchdog(90000);
 
         if (message.complete) {
-          processedVideoId = currentVideoId;
-          showStatusToast("CleanSubs: Subtitles ready", "success", 2000);
+          // Only mark the video fully processed when EVERY cue actually has a
+          // translation. With the rolling horizon window, a job can complete
+          // while far-future cues are still pending — those must keep being
+          // fetched by the follow-up request below.
+          const allTranslated = stitchedSegments.length > 0 &&
+            translations.slice(0, stitchedSegments.length).every((t) => !!t);
+          if (allTranslated) {
+            processedVideoId = currentVideoId;
+            showStatusToast("CleanSubs: Subtitles ready", "success", 2000);
+          }
           if (watchdogId) {
             clearTimeout(watchdogId);
             watchdogId = null;
           }
           activeRequestId = null;
+          // Rolling window: as soon as a horizon batch finishes, immediately
+          // queue the next chunk ahead of the playhead so long videos keep
+          // translating without ever saturating the free-tier rate limit.
+          setTimeout(() => requestTranslationIfNeeded(), 500);
         }
         return;
       }

@@ -7,10 +7,12 @@ const DEFAULT_MODEL = "gemini-2.5-flash";
 const FALLBACK_MODELS = [
   "gemini-2.5-flash",
   "gemini-2.5-flash-lite",
+  "gemini-2.0-flash",
+  // Legacy (possibly deprecated) Gemini 3.x names kept last in the cascade so
+  // rotation always lands on a model that actually exists first.
   "gemini-3.1-flash-lite",
   "gemini-3.5-flash-lite",
-  "gemini-3.8-flash",
-  "gemini-2.0-flash"
+  "gemini-3.8-flash"
 ];
 
 const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
