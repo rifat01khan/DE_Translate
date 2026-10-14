@@ -1,0 +1,603 @@
+/* CleanSubs v4.9.1 - Subtitle Overlay Stylesheet */
+
+/* 1. Hide YouTube's native captions so they never overlap or flicker */
+.ytp-caption-window-container,
+.caption-window,
+.ytp-caption-segment {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* 2. Custom clean subtitle overlay */
+#clean-subs-container {
+  position: absolute;
+  bottom: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999999;
+  text-align: center;
+  pointer-events: none;
+  max-width: 88%;
+  width: auto;
+  transition: bottom 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#clean-subs-box {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background-color: rgba(10, 10, 10, 0.88);
+  padding: 6px 14px;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.75);
+  text-shadow: 0 1px 2px #000000;
+  white-space: pre-wrap;
+  backdrop-filter: blur(3px);
+  text-align: center;
+}
+
+.clean-subs-line {
+  font-family: "YouTube Noto", Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  letter-spacing: 0.2px;
+  word-break: break-word;
+}
+
+/* Original German subtitle line (subtle, elegant off-white) */
+.clean-subs-original {
+  font-size: clamp(13px, 1.8vw, 19px);
+  color: #e2e8f0;
+  font-weight: 400;
+  line-height: 1.35;
+  opacity: 0.92;
+}
+
+/* Translated English subtitle line (crisp, prominent) */
+.clean-subs-translated {
+  font-size: clamp(16px, 2.2vw, 24px);
+  color: #ffffff;
+  font-weight: 500;
+  line-height: 1.42;
+}
+
+/* When only one line is displayed (English only or German only) */
+#clean-subs-container.mode-english .clean-subs-translated,
+#clean-subs-container.mode-german .clean-subs-original {
+  font-size: clamp(16px, 2.2vw, 24px);
+  color: #ffffff;
+  font-weight: 500;
+  opacity: 1;
+}
+
+/* User size preferences */
+#clean-subs-container.font-small .clean-subs-original {
+  font-size: clamp(11px, 1.4vw, 15px);
+}
+#clean-subs-container.font-small .clean-subs-translated,
+#clean-subs-container.font-small.mode-english .clean-subs-translated,
+#clean-subs-container.font-small.mode-german .clean-subs-original {
+  font-size: clamp(13px, 1.7vw, 19px);
+  padding: 1px 0;
+}
+
+#clean-subs-container.font-large .clean-subs-original {
+  font-size: clamp(15px, 2.2vw, 23px);
+}
+#clean-subs-container.font-large .clean-subs-translated,
+#clean-subs-container.font-large.mode-english .clean-subs-translated,
+#clean-subs-container.font-large.mode-german .clean-subs-original {
+  font-size: clamp(19px, 2.8vw, 30px);
+  padding: 2px 0;
+}
+
+/* Adjust vertical position when player controls auto-hide */
+.ytp-autohide #clean-subs-container {
+  bottom: 46px;
+}
+
+/* Fullscreen adjustments */
+.ytp-fullscreen #clean-subs-container {
+  bottom: 84px;
+}
+
+.ytp-fullscreen.ytp-autohide #clean-subs-container {
+  bottom: 50px;
+}
+
+/* 3. On-Player Status Toast (Non-intrusive notifications) */
+#clean-subs-toast {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 999999;
+  pointer-events: none;
+  background: rgba(15, 23, 42, 0.92);
+  color: #f8fafc;
+  font-family: "YouTube Noto", Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 7px 15px;
+  border-radius: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  max-width: 320px;
+  text-align: center;
+  word-break: break-word;
+}
+
+#clean-subs-toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#clean-subs-toast.info {
+  border-left: 3px solid #0284c7;
+}
+
+#clean-subs-toast.success {
+  border-left: 3px solid #22c55e;
+}
+
+#clean-subs-toast.error {
+  border-left: 3px solid #ef4444;
+  background: rgba(26, 12, 12, 0.95);
+}
+
+/* 4. Position Presets & Draggable Box */
+#clean-subs-box {
+  pointer-events: auto !important;
+  cursor: grab;
+  position: relative;
+}
+
+#clean-subs-box.dragging {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+#clean-subs-container.pos-bottom {
+  bottom: 72px;
+  top: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#clean-subs-container.pos-top {
+  top: 60px;
+  bottom: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ytp-autohide #clean-subs-container.pos-top {
+  top: 36px;
+}
+
+#clean-subs-container.pos-custom {
+  bottom: auto;
+  transform: none;
+}
+
+/* Bookmark / Anki Save Button inside Subtitle Box */
+.clean-subs-bookmark-btn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #0284c7;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: auto;
+  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+#clean-subs-box:hover .clean-subs-bookmark-btn {
+  opacity: 1;
+}
+
+.clean-subs-bookmark-btn:hover {
+  background: #0369a1;
+  transform: scale(1.15);
+}
+
+/* 5. On-Player YouTube Control Button ([CS] button) */
+.clean-subs-player-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  vertical-align: top;
+  width: auto !important;
+  padding: 0 6px !important;
+}
+
+.clean-subs-btn-badge {
+  display: inline-block;
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: 0.5px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  line-height: 1.1;
+  transition: background 0.15s ease, transform 0.1s;
+}
+
+.clean-subs-player-btn:hover .clean-subs-btn-badge {
+  background: #0ea5e9;
+  transform: scale(1.05);
+}
+
+.clean-subs-player-btn.disabled .clean-subs-btn-badge {
+  background: #64748b;
+  opacity: 0.65;
+}
+
+/* 6. On-Player Quick Settings Menu */
+#clean-subs-quick-menu {
+  position: absolute;
+  bottom: 58px;
+  right: 14px;
+  z-index: 999999;
+  width: 260px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(14px);
+  padding: 12px;
+  color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+  box-sizing: border-box;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px) scale(0.96);
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#clean-subs-quick-menu.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.clean-subs-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 13px;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  color: #38bdf8;
+}
+
+.cs-icon-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.cs-icon-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.clean-subs-menu-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #e2e8f0;
+}
+
+.clean-subs-menu-row select {
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 4px 6px;
+  outline: none;
+  max-width: 140px;
+}
+
+.clean-subs-menu-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cs-action-btn {
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: center;
+}
+
+.cs-action-btn:hover {
+  background: #0369a1;
+}
+
+.cs-action-btn.secondary {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.cs-action-btn.secondary:hover {
+  background: #475569;
+}
+
+/* 8. Quiz / Reveal Mode */
+.clean-subs-quiz-hidden {
+  filter: blur(8px);
+  user-select: none;
+  cursor: pointer;
+  transition: filter 0.3s ease;
+}
+
+.clean-subs-quiz-hidden:hover {
+  filter: blur(5px);
+}
+
+.clean-subs-quiz-revealed {
+  filter: none;
+  transition: filter 0.3s ease;
+}
+
+.clean-subs-reveal-hint {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+  margin-top: 2px;
+  pointer-events: none;
+}
+
+/* 9. Word-Level Dictionary Popup */
+.clean-subs-word {
+  cursor: pointer;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.3);
+  transition: border-color 0.15s, color 0.15s;
+  display: inline;
+}
+
+.clean-subs-word:hover {
+  border-bottom-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.clean-subs-word.vocab-known {
+  border-bottom: 2px solid rgba(34, 197, 94, 0.6);
+  color: #4ade80;
+}
+
+.clean-subs-word.vocab-known:hover {
+  color: #22c55e;
+  border-bottom-color: #22c55e;
+}
+
+#clean-subs-word-popup {
+  position: absolute;
+  z-index: 9999999;
+  background: rgba(15, 23, 42, 0.97);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 8px;
+  padding: 10px 14px;
+  min-width: 140px;
+  max-width: 280px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+#clean-subs-word-popup.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.word-popup-term {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 4px;
+}
+
+.word-popup-pos {
+  font-size: 11px;
+  color: #94a3b8;
+  font-style: italic;
+  margin-bottom: 4px;
+}
+
+.word-popup-gender {
+  font-size: 11px;
+  font-weight: 600;
+  color: #38bdf8;
+  margin-bottom: 4px;
+}
+
+.word-popup-meaning {
+  font-size: 14px;
+  color: #e2e8f0;
+  line-height: 1.4;
+}
+
+.word-popup-unknown {
+  font-size: 12px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.word-popup-save-btn {
+  display: inline-block;
+  margin-top: 6px;
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.word-popup-save-btn:hover {
+  background: #0369a1;
+}
+
+/* 10. Cue Loop Indicator */
+.clean-subs-loop-badge {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  background: #f59e0b;
+  color: #000000;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+#clean-subs-box.looping .clean-subs-loop-badge {
+  opacity: 1;
+}
+
+/* 11. Session Stats Bar */
+#clean-subs-session-stats {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999998;
+  display: flex;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 4px 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#clean-subs-session-stats.visible {
+  opacity: 1;
+}
+
+.stats-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.stats-icon {
+  font-size: 12px;
+}
+
+.stats-value {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* 12. Auto-Pause Indicator */
+.clean-subs-autopause-badge {
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  background: #8b5cf6;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+#clean-subs-box.autopause .clean-subs-autopause-badge {
+  opacity: 1;
+}
+
+/* 13. Real-Time Word Karaoke Highlighting */
+.clean-subs-word.word-active {
+  color: #38bdf8 !important;
+  font-weight: 700;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.75), 0 1px 3px #000000;
+  display: inline-block;
+  transform: scale(1.08);
+  border-bottom: 2px solid #38bdf8;
+  opacity: 1 !important;
+}
+
+.clean-subs-word.word-spoken {
+  color: #ffffff;
+  opacity: 0.95;
+  border-bottom-color: rgba(255, 255, 255, 0.25);
+}
+
+.clean-subs-word.word-upcoming {
+  color: rgba(226, 232, 240, 0.62);
+  opacity: 0.75;
+}
+
+.clean-subs-word.vocab-known.word-active {
+  color: #38bdf8 !important;
+  border-bottom: 2px solid #22c55e !important;
+}
+
+

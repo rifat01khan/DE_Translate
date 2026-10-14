@@ -1,0 +1,67 @@
+{
+  "manifest_version": 3,
+  "name": "Clean German Subtitles for YouTube",
+  "version": "4.9.1",
+  "description": "Ultra-reliable German to English subtitle translation for YouTube powered by Google Gemini with zero rate-limit freezes.",
+  "permissions": [
+    "storage",
+    "unlimitedStorage"
+  ],
+  "host_permissions": [
+    "https://*.youtube.com/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "toggle-translation": {
+      "suggested_key": {
+        "default": "Alt+C"
+      },
+      "description": "Toggle Clean German Subtitles On/Off"
+    },
+    "cycle-mode": {
+      "suggested_key": {
+        "default": "Alt+B"
+      },
+      "description": "Cycle Subtitle Mode (Bilingual / English / German / Quiz)"
+    },
+    "save-vocabulary": {
+      "suggested_key": {
+        "default": "Alt+S"
+      },
+      "description": "Save Active Subtitle Cue to Vocabulary Bank"
+    }
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Clean German Subtitles"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/*"
+      ],
+      "js": [
+        "content_main.js"
+      ],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://www.youtube.com/*"
+      ],
+      "js": [
+        "dictionary.js",
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "world": "ISOLATED",
+      "run_at": "document_start"
+    }
+  ]
+}

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clean German Subtitles</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --card-bg: #f8fafc;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --success: #16a34a;
+      --danger: #dc2626;
+    }
+
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 16px;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      box-sizing: border-box;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+      background: #e0f2fe;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 22px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #cbd5e1;
+      transition: .2s;
+      border-radius: 22px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(16px);
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    input[type="password"], select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      margin-bottom: 12px;
+      background: #ffffff;
+      color: var(--text);
+      outline: none;
+    }
+
+    input[type="password"]:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    button {
+      padding: 8px 12px;
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    button.secondary {
+      background-color: #e2e8f0;
+      color: #334155;
+    }
+
+    button.secondary:hover {
+      background-color: #cbd5e1;
+    }
+
+    #msg {
+      margin-top: 8px;
+      font-size: 12px;
+      text-align: center;
+      min-height: 18px;
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 10px;
+      line-height: 1.4;
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+    }
+
+    .hint a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .hint a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Clean German Subtitles</h1>
+    <span class="badge">v4.9.1</span>
+  </div>
+
+  <div class="toggle-row">
+    <span>Enable Translation</span>
+    <label class="switch">
+      <input type="checkbox" id="extToggle" checked>
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <label for="apiKey">Gemini API Key</label>
+  <input type="password" id="apiKey" placeholder="AIzaSy...">
+
+  <label for="modelSelect">Translation Model</label>
+  <select id="modelSelect">
+    <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash (Recommended - Most Reliable)</option>
+    <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash-Lite (Fast & High Quota)</option>
+    <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash-Lite (Gemini 3 Efficiency)</option>
+    <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite (High Throughput)</option>
+    <option value="gemini-3.8-flash">Gemini 3.8 Flash (Latest Flagship)</option>
+    <option value="gemini-2.0-flash">Gemini 2.0 Flash (Universal Fallback)</option>
+  </select>
+
+  <label for="subtitleModeSelect">Subtitle Display Mode</label>
+  <select id="subtitleModeSelect">
+    <option value="bilingual" selected>Bilingual (German + English)</option>
+    <option value="english">English Only (Translated)</option>
+    <option value="german">German Only (Clean Original)</option>
+    <option value="quiz">Quiz Mode (Reveal on Press)</option>
+  </select>
+
+  <label for="fontSizeSelect">Subtitle Size</label>
+  <select id="fontSizeSelect">
+    <option value="small">Small</option>
+    <option value="normal" selected>Normal (Recommended)</option>
+    <option value="large">Large</option>
+  </select>
+
+  <label for="positionSelect">Subtitle Position</label>
+  <select id="positionSelect">
+    <option value="bottom" selected>Bottom (Default)</option>
+    <option value="top">Top</option>
+    <option value="custom">Custom (Draggable)</option>
+  </select>
+
+  <div style="margin: 12px 0 6px; font-weight: 600; font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.5px; border-top: 1px solid var(--border); padding-top: 8px;">
+    Language Learning Tools
+  </div>
+
+  <div class="toggle-row">
+    <span>Karaoke Word Highlighting</span>
+    <label class="switch">
+      <input type="checkbox" id="karaokeToggle" checked>
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="toggle-row">
+    <span>Auto-Pause on New Cue</span>
+    <label class="switch">
+      <input type="checkbox" id="autoPauseToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="toggle-row" style="padding: 8px 12px;">
+    <span>Loop Active Cue (Drill)</span>
+    <span style="font-size: 11px; color: var(--primary); font-weight: 700; background: #e0f2fe; padding: 2px 7px; border-radius: 4px;">Press L</span>
+  </div>
+
+  <div class="toggle-row" style="padding: 8px 12px;">
+    <span>Reveal Quiz Translation</span>
+    <span style="font-size: 11px; color: var(--primary); font-weight: 700; background: #e0f2fe; padding: 2px 7px; border-radius: 4px;">Press Space</span>
+  </div>
+
+  <div class="actions-grid">
+    <button id="saveBtn">Save Settings</button>
+    <button id="testBtn" class="secondary">Test Key</button>
+  </div>
+
+  <div style="margin: 12px 0 6px; font-weight: 600; font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.5px; border-top: 1px solid var(--border); padding-top: 8px;">
+    Language Learning &amp; Export
+  </div>
+  <div class="actions-grid">
+    <button id="exportAnkiBtn" style="background: #059669;">★ Export Anki (<span id="vocabCount">0</span>)</button>
+    <button id="downloadSrtBtn" class="secondary">📥 Download .SRT</button>
+  </div>
+
+  <button id="clearCacheBtn" class="secondary" style="width: 100%; margin-top: 6px;">Clear Translation Cache</button>
+
+  <div id="msg"></div>
+
+  <div class="hint">
+    Free API key available at <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a>. Caches translated clauses locally to save quota on re-watches.
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
